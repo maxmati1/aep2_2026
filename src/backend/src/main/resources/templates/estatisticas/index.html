@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estatisticas — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link active">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container wide">
+  <h1 class="page-title">Estatisticas</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card success">
+      <div class="stat-number" th:text="${percentualNoPrazo + '%'}">0%</div>
+      <div class="stat-label">Resolvidas no Prazo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" th:text="${total}">0</div>
+      <div class="stat-label">Total Registradas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" th:text="${abertas}">0</div>
+      <div class="stat-label">Em Aberto</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-number" th:text="${emExecucao}">0</div>
+      <div class="stat-label">Em Execucao</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-number" th:text="${resolvidas}">0</div>
+      <div class="stat-label">Resolvidas</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-number" th:text="${atrasadas}">0</div>
+      <div class="stat-label">Em Atraso</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Ocorrencias por Categoria</h2>
+    <div class="bar-chart" id="chartCategoria">
+      <div th:if="${porCategoria == null or porCategoria.isEmpty()}"
+           style="color:#6B7280;font-size:.875rem;text-align:center;padding:1rem">
+        Nenhum dado disponivel.
+      </div>
+      <div th:each="entry : ${porCategoria}" class="bar-item">
+        <div class="bar-label" th:text="${entry.key}"></div>
+        <div class="bar-track">
+          <div class="bar-fill"
+               th:style="'width:' + ${(entry.value * 100) / (total > 0 ? total : 1)} + '%'"
+               th:text="${entry.value}"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Distribuicao por Status</h2>
+    <div class="bar-chart">
+      <div th:each="entry : ${porStatus}" class="bar-item">
+        <div class="bar-label" th:text="${entry.key}"></div>
+        <div class="bar-track">
+          <div class="bar-fill"
+               th:style="'width:' + ${(entry.value * 100) / (total > 0 ? total : 1)} + '%;background:#7C3AED'"
+               th:text="${entry.value}"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

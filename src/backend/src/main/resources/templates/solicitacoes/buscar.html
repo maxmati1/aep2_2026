@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buscar Solicitacao — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link active">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container">
+  <h1 class="page-title">Buscar Solicitacao por CPF / ID</h1>
+
+  <div class="card">
+    <p style="font-size:.875rem;color:#6B7280;margin-bottom:1rem">
+      Informe seu CPF ou e-mail para consultar suas solicitacoes registradas.
+    </p>
+
+    <form th:action="@{/solicitacoes/buscar}" method="post">
+      <div class="form-group">
+        <label class="form-label" for="idCidadao">Digite seu CPF ou e-mail</label>
+        <input class="form-control" type="text" id="idCidadao" name="idCidadao"
+               th:value="${idCidadao}"
+               placeholder="Ex: 123.456.789-00 ou email@exemplo.com" required/>
+      </div>
+      <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+  </div>
+
+  <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+
+  <div th:if="${buscaRealizada}">
+    <div th:if="${lista != null and !lista.isEmpty()}">
+      <div class="alert alert-success">
+        Busca concluida — <strong th:text="${lista.size()}"></strong> solicitacao(oes) encontrada(s)
+        para <strong th:text="${idCidadao}"></strong>.
+      </div>
+
+      <div th:each="sol : ${lista}" class="card" style="margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+          <div style="font-family:monospace;font-size:.8rem;font-weight:700;color:#1A56DB"
+               th:text="${sol.protocolo}"></div>
+          <span th:class="'badge badge-' + ${sol.status.name().toLowerCase().replace('_','-')}"
+                th:text="${sol.status.descricao}"></span>
+        </div>
+
+        <div style="font-size:.875rem;color:#374151;margin-bottom:.5rem" th:text="${sol.categoria.descricao}"></div>
+        <div style="font-size:.8rem;color:#6B7280" th:text="${sol.localizacao}"></div>
+        <div style="font-size:.8rem;color:#6B7280;margin-top:.25rem"
+             th:text="'Criada em: ' + ${#temporals.format(sol.dataCriacao, 'dd/MM/yyyy HH:mm')}"></div>
+
+        <div style="margin-top:.75rem">
+          <a th:href="@{/solicitacoes/status(protocolo=${sol.protocolo})}"
+             class="btn btn-secondary btn-sm" style="text-decoration:none">
+            Ver Status
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${lista == null or lista.isEmpty()}" class="card" style="text-align:center;padding:2rem">
+      <p style="color:#6B7280;margin-top:.5rem">
+        Nenhuma solicitacao encontrada para <strong th:text="${idCidadao}"></strong>.
+      </p>
+      <a th:href="@{/solicitacoes/nova}" class="btn btn-primary" style="margin-top:1rem;width:auto">
+        Registrar nova ocorrencia
+      </a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

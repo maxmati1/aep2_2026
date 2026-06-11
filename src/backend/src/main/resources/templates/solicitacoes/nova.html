@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrar Ocorrencia — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link active">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container">
+  <h1 class="page-title">Registrar Ocorrencia</h1>
+
+  <div th:if="${erro}"    class="alert alert-danger"  th:text="${erro}"></div>
+  <div th:if="${sucesso}" class="alert alert-success" th:text="${sucesso}"></div>
+
+  <div class="card">
+    <form th:action="@{/solicitacoes/nova}" method="post">
+
+      <div class="form-group">
+        <label class="form-label" for="idCidadao">Informe seu ID (CPF ou e-mail)</label>
+        <input class="form-control" type="text" id="idCidadao" name="idCidadao"
+               placeholder="Ex: 123.456.789-00 ou email@exemplo.com" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="categoria">Categoria</label>
+        <select class="form-control" id="categoria" name="categoria" required>
+          <option value="">Selecione a categoria</option>
+          <option th:each="cat : ${categorias}"
+                  th:value="${cat.name()}"
+                  th:text="${cat.descricao}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="localizacao">Localizacao</label>
+        <input class="form-control" type="text" id="localizacao" name="localizacao"
+               placeholder="Ex: Rua das Flores, 100 - Bairro Centro" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="prioridade">Prioridade</label>
+        <select class="form-control" id="prioridade" name="prioridade" required>
+          <option value="">Selecione a prioridade</option>
+          <option th:each="p : ${prioridades}"
+                  th:value="${p.name()}"
+                  th:text="${p.descricao + ' (SLA: ' + p.diasSLA + ' dias)'}"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="descricao">Descricao</label>
+        <textarea class="form-control" id="descricao" name="descricao"
+                  placeholder="Descreva a ocorrencia com detalhes (minimo 10 caracteres)..."
+                  required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" name="anonimo" value="true"/>
+          <span class="form-check-label">Envio anonimo (sua identidade nao sera exibida)</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Enviar Solicitacao</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

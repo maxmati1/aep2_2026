@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${pageTitle} + ' — CidadaoAtivo'">CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar" th:fragment="navbar">
+  <div class="navbar-icon" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link" th:classappend="${activePage=='nova'}     ? 'active' : ''">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link" th:classappend="${activePage=='buscar'}   ? 'active' : ''">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link" th:classappend="${activePage=='estatist'} ? 'active' : ''">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link" th:classappend="${activePage=='gerenc'}   ? 'active' : ''">Gerenciamento</a>
+  </nav>
+</nav>
+
+</body>
+</html>

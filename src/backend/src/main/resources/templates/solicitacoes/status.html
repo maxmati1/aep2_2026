@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Status — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link active">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container">
+  <h1 class="page-title">Status da Solicitacao</h1>
+
+  <div class="card">
+    <form th:action="@{/solicitacoes/status}" method="get" style="display:flex;gap:.5rem">
+      <input class="form-control" type="text" name="protocolo"
+             th:value="${protocolo}"
+             placeholder="Digite o numero do protocolo (CA-...)"/>
+      <button type="submit" class="btn btn-primary" style="width:auto;white-space:nowrap">Buscar</button>
+    </form>
+  </div>
+
+  <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+
+  <div th:if="${solicitacao != null}">
+
+    <div class="protocolo-box">
+      <div class="protocolo-label">Protocolo</div>
+      <div class="protocolo-value" th:text="${solicitacao.protocolo}"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;font-size:.875rem">
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:600;text-transform:uppercase">Categoria</div>
+          <div th:text="${solicitacao.categoria.descricao}"></div>
+        </div>
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:600;text-transform:uppercase">Prioridade</div>
+          <div th:text="${solicitacao.prioridade.descricao}"></div>
+        </div>
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:600;text-transform:uppercase">Localizacao</div>
+          <div th:text="${solicitacao.localizacao}"></div>
+        </div>
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:600;text-transform:uppercase">Prazo SLA</div>
+          <div th:text="${#temporals.format(solicitacao.dataPrazo, 'dd/MM/yyyy')}"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:.75rem;font-size:.875rem">
+        <div style="color:#6B7280;font-size:.75rem;font-weight:600;text-transform:uppercase;margin-bottom:.25rem">Descricao</div>
+        <div th:text="${solicitacao.descricao}" style="color:#374151"></div>
+      </div>
+
+      <div th:if="${solicitacao.estaAtrasada()}" class="alert alert-danger" style="margin-top:.75rem;margin-bottom:0">
+        Esta solicitacao esta <strong>em atraso</strong> em relacao ao prazo SLA.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Acompanhamento do Processo</h2>
+
+      <div class="status-timeline">
+        <div th:each="statusItem, iterStat : ${todosStatus}"
+             th:with="statusAtual=${solicitacao.status},
+                      historico=${solicitacao.historico},
+                      ordemAtual=${statusAtual.ordinal()},
+                      ordemItem=${statusItem.ordinal()},
+                      isDone=${ordemItem < ordemAtual},
+                      isActive=${statusItem == statusAtual}"
+             class="timeline-item"
+             th:classappend="${isDone ? 'done' : (isActive ? 'active' : '')}">
+
+          <div class="timeline-dot">
+            <span th:if="${isDone}">V</span>
+            <span th:if="${isActive}">*</span>
+          </div>
+
+          <div class="timeline-content">
+            <div class="timeline-label" th:text="${statusItem.descricao}"></div>
+
+            <div th:each="hist : ${historico}"
+                 th:if="${hist.statusNovo == statusItem}">
+              <div class="timeline-date"
+                   th:text="${#temporals.format(hist.dataAlteracao, 'dd/MM/yyyy HH:mm')}"></div>
+              <div class="timeline-detail">
+                <strong>Responsavel:</strong> <span th:text="${hist.responsavel}"></span><br/>
+                <span th:text="${hist.comentario}"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${solicitacao == null and protocolo == null}" class="card" style="text-align:center;padding:2rem">
+    <p style="color:#6B7280;margin-top:.5rem">Informe o numero do protocolo para consultar o status.</p>
+    <a th:href="@{/solicitacoes/nova}" class="btn btn-primary" style="margin-top:1rem;width:auto">
+      Registrar nova ocorrencia
+    </a>
+  </div>
+</div>
+
+</body>
+</html>

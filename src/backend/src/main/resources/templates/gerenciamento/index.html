@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerenciamento — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link active">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container wide">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <h1 class="page-title" style="margin-bottom:0">Gerenciamento</h1>
+    <a th:href="@{/solicitacoes/nova}" class="btn btn-primary" style="width:auto">+ Nova</a>
+  </div>
+
+  <div th:if="${sucesso}" class="alert alert-success" th:text="${sucesso}"></div>
+  <div th:if="${erro}"    class="alert alert-danger"  th:text="${erro}"></div>
+
+  <form th:action="@{/gerenciamento}" method="get">
+    <div class="filter-bar">
+      <input class="form-control" type="text" name="busca"
+             th:value="${busca}"
+             placeholder="Pesquisar por protocolo ou local..."/>
+      <select class="form-control" name="status" style="max-width:200px">
+        <option value="">Todos os Status</option>
+        <option th:each="s : ${todosStatus}"
+                th:value="${s.name()}"
+                th:text="${s.descricao}"
+                th:selected="${s == statusFiltro}"></option>
+      </select>
+      <button type="submit" class="btn btn-primary" style="width:auto">Filtrar</button>
+      <a th:href="@{/gerenciamento}" class="btn btn-secondary" style="width:auto">Limpar</a>
+    </div>
+  </form>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Protocolo</th>
+          <th>Categoria</th>
+          <th>Localizacao</th>
+          <th>Prioridade</th>
+          <th>Status</th>
+          <th>Criada em</th>
+          <th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:if="${lista == null or lista.isEmpty()}">
+          <td colspan="7" style="text-align:center;color:#6B7280;padding:2rem">
+            Nenhuma solicitacao encontrada.
+          </td>
+        </tr>
+        <tr th:each="sol : ${lista}">
+          <td>
+            <code style="font-size:.8rem;color:#1A56DB" th:text="${sol.protocolo}"></code>
+          </td>
+          <td th:text="${sol.categoria.descricao}"></td>
+          <td th:text="${sol.localizacao}"></td>
+          <td>
+            <span th:class="'prio-' + ${sol.prioridade.name().toLowerCase()}"
+                  th:text="${sol.prioridade.descricao}"></span>
+          </td>
+          <td>
+            <span th:class="'badge badge-' + ${sol.status.name().toLowerCase().replace('_','-')}"
+                  th:text="${sol.status.descricao}"></span>
+            <span th:if="${sol.estaAtrasada()}" class="badge badge-atrasado" style="margin-left:.25rem">Atrasado</span>
+          </td>
+          <td th:text="${#temporals.format(sol.dataCriacao, 'dd/MM/yy HH:mm')}"></td>
+          <td>
+            <a th:href="@{/gerenciamento/{p}(p=${sol.protocolo})}"
+               class="btn btn-secondary btn-sm" style="text-decoration:none">Ver</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="font-size:.8rem;color:#6B7280;margin-top:.75rem;text-align:right"
+       th:text="${lista != null ? lista.size() + ' registro(s)' : ''}"></div>
+</div>
+
+</body>
+</html>

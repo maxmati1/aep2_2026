@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalhe — CidadaoAtivo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-icon"><span></span><span></span><span></span></div>
+  <a th:href="@{/}" class="navbar-brand">CidadaoAtivo</a>
+  <nav class="navbar-nav">
+    <a th:href="@{/solicitacoes/nova}"   class="nav-link">Nova</a>
+    <a th:href="@{/solicitacoes/buscar}" class="nav-link">Buscar</a>
+    <a th:href="@{/estatisticas}"        class="nav-link">Estatisticas</a>
+    <a th:href="@{/gerenciamento}"       class="nav-link active">Gerenciamento</a>
+  </nav>
+</nav>
+
+<div class="page-container">
+  <div style="margin-bottom:1rem">
+    <a th:href="@{/gerenciamento}" style="color:#1A56DB;font-size:.875rem;text-decoration:none">Voltar</a>
+  </div>
+
+  <div th:if="${erro}"    class="alert alert-danger"  th:text="${erro}"></div>
+  <div th:if="${sucesso}" class="alert alert-success" th:text="${sucesso}"></div>
+
+  <div th:if="${solicitacao != null}">
+    <h1 class="page-title">Detalhes da Solicitacao</h1>
+
+    <div class="protocolo-box">
+      <div class="protocolo-label">Protocolo</div>
+      <div class="protocolo-value" th:text="${solicitacao.protocolo}"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:grid;gap:.75rem;font-size:.875rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div>
+            <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Categoria</div>
+            <div th:text="${solicitacao.categoria.descricao}"></div>
+          </div>
+          <div>
+            <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Prioridade</div>
+            <div th:text="${solicitacao.prioridade.descricao}"></div>
+          </div>
+          <div>
+            <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Status Atual</div>
+            <span th:class="'badge badge-' + ${solicitacao.status.name().toLowerCase().replace('_','-')}"
+                  th:text="${solicitacao.status.descricao}"></span>
+          </div>
+          <div>
+            <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Prazo SLA</div>
+            <div th:text="${#temporals.format(solicitacao.dataPrazo, 'dd/MM/yyyy')}"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Localizacao</div>
+          <div th:text="${solicitacao.localizacao}"></div>
+        </div>
+
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Cidadao</div>
+          <div th:text="${solicitacao.identificacaoCidadao}"></div>
+        </div>
+
+        <div>
+          <div style="color:#6B7280;font-size:.75rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">Descricao</div>
+          <div th:text="${solicitacao.descricao}"></div>
+        </div>
+
+        <div th:if="${solicitacao.estaAtrasada()}" class="alert alert-danger" style="margin:0">
+          Solicitacao <strong>em atraso</strong> — prazo SLA expirado.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Atualizar Status</h2>
+      <form th:action="@{/gerenciamento/{p}/status(p=${solicitacao.protocolo})}" method="post">
+        <div class="form-group">
+          <label class="form-label">Novo Status</label>
+          <select class="form-control" name="novoStatus" required>
+            <option th:each="s : ${todosStatus}"
+                    th:value="${s.name()}"
+                    th:text="${s.descricao}"
+                    th:selected="${s == solicitacao.status}"></option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsavel</label>
+          <input class="form-control" type="text" name="responsavel"
+                 placeholder="E-mail ou nome do responsavel" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Comentario</label>
+          <textarea class="form-control" name="comentario"
+                    placeholder="Descreva a acao realizada..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar Atualizacao</button>
+      </form>
+    </div>
+
+    <div class="card" th:if="${!solicitacao.historico.isEmpty()}">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Historico de Alteracoes</h2>
+      <div th:each="hist : ${solicitacao.historico}" class="historico-item">
+        <div class="hist-meta">
+          <strong th:text="${#temporals.format(hist.dataAlteracao, 'dd/MM/yyyy HH:mm')}"></strong>
+          — <span th:text="${hist.responsavel}"></span>
+          |
+          <span th:text="${hist.statusAnterior.descricao}"></span> &rarr;
+          <strong th:text="${hist.statusNovo.descricao}"></strong>
+        </div>
+        <div class="hist-body" th:text="${hist.comentario}"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
